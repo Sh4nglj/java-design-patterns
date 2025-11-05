@@ -25,10 +25,14 @@
 package com.iluwatar.servicelayer.common;
 
 import jakarta.persistence.MappedSuperclass;
+import jakarta.persistence.Version;
 
 /** Base class for entities. */
 @MappedSuperclass
 public abstract class BaseEntity {
+
+  @Version
+  private Long version;
 
   /**
    * Indicates the unique id of this entity.
@@ -57,4 +61,22 @@ public abstract class BaseEntity {
    * @param name The new name
    */
   public abstract void setName(final String name);
+
+  /**
+   * Get the version of this entity for optimistic locking.
+   *
+   * @return The version number
+   */
+  public Long getVersion() {
+    return version;
+  }
+
+  /**
+   * Set the version of this entity.
+   *
+   * @param version The new version number
+   */
+  public void setVersion(Long version) {
+    this.version = version;
+  }
 }
