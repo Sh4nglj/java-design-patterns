@@ -36,7 +36,9 @@ import com.iluwatar.monolithic.exceptions.NonExistentUserException;
 import com.iluwatar.monolithic.model.Order;
 import com.iluwatar.monolithic.model.Product;
 import com.iluwatar.monolithic.model.User;
+import com.iluwatar.monolithic.model.OrderStatus;
 import com.iluwatar.monolithic.repository.OrderRepository;
+import com.iluwatar.monolithic.repository.OrderStatusHistoryRepository;
 import com.iluwatar.monolithic.repository.ProductRepository;
 import com.iluwatar.monolithic.repository.UserRepository;
 import java.io.ByteArrayInputStream;
@@ -86,13 +88,14 @@ class MonolithicAppTest {
   @Test
   void testPlaceOrderUserNotFound() {
     UserRepository mockUserRepository = mock(UserRepository.class);
-    ProductRepository mockProductRepository = mock(ProductRepository.class);
-    OrderRepository mockOrderRepo = mock(OrderRepository.class);
+  ProductRepository mockProductRepository = mock(ProductRepository.class);
+  OrderRepository mockOrderRepo = mock(OrderRepository.class);
+  OrderStatusHistoryRepository mockOrderStatusHistoryRepo = mock(OrderStatusHistoryRepository.class);
 
-    when(mockUserRepository.findById(1L)).thenReturn(Optional.empty());
+  when(mockUserRepository.findById(1L)).thenReturn(Optional.empty());
 
-    OrderController orderCon =
-        new OrderController(mockOrderRepo, mockUserRepository, mockProductRepository);
+  OrderController orderCon =
+      new OrderController(mockOrderRepo, mockUserRepository, mockProductRepository, mockOrderStatusHistoryRepo);
 
     Exception exception =
         assertThrows(NonExistentUserException.class, () -> orderCon.placeOrder(1L, 1L, 5));
@@ -103,16 +106,17 @@ class MonolithicAppTest {
   @Test
   void testPlaceOrderProductNotFound() {
     UserRepository mockUserRepository = mock(UserRepository.class);
-    ProductRepository mockProductRepository = mock(ProductRepository.class);
-    OrderRepository mockOrderRepository = mock(OrderRepository.class);
+  ProductRepository mockProductRepository = mock(ProductRepository.class);
+  OrderRepository mockOrderRepository = mock(OrderRepository.class);
+  OrderStatusHistoryRepository mockOrderStatusHistoryRepo = mock(OrderStatusHistoryRepository.class);
 
-    User mockUser = new User(1L, "John Doe", "john@example.com", "password123");
-    when(mockUserRepository.findById(1L)).thenReturn(Optional.of(mockUser));
+  User mockUser = new User(1L, "John Doe", "john@example.com", "password123");
+  when(mockUserRepository.findById(1L)).thenReturn(Optional.of(mockUser));
 
-    when(mockProductRepository.findById(1L)).thenReturn(Optional.empty());
+  when(mockProductRepository.findById(1L)).thenReturn(Optional.empty());
 
-    OrderController orderCon =
-        new OrderController(mockOrderRepository, mockUserRepository, mockProductRepository);
+  OrderController orderCon =
+      new OrderController(mockOrderRepository, mockUserRepository, mockProductRepository, mockOrderStatusHistoryRepo);
 
     Exception exception =
         assertThrows(NonExistentProductException.class, () -> orderCon.placeOrder(1L, 1L, 5));
@@ -123,11 +127,12 @@ class MonolithicAppTest {
   @Test
   void testOrderConstructor() {
     OrderRepository mockOrderRepository = mock(OrderRepository.class);
-    UserRepository mockUserRepository = mock(UserRepository.class);
-    ProductRepository mockProductRepository = mock(ProductRepository.class);
+  UserRepository mockUserRepository = mock(UserRepository.class);
+  ProductRepository mockProductRepository = mock(ProductRepository.class);
+  OrderStatusHistoryRepository mockOrderStatusHistoryRepo = mock(OrderStatusHistoryRepository.class);
 
-    OrderController orderCon =
-        new OrderController(mockOrderRepository, mockUserRepository, mockProductRepository);
+  OrderController orderCon =
+      new OrderController(mockOrderRepository, mockUserRepository, mockProductRepository, mockOrderStatusHistoryRepo);
 
     assertNotNull(orderCon);
   }
@@ -175,17 +180,18 @@ class MonolithicAppTest {
   @Test
   void testPlaceOrderInsufficientStock() {
     UserRepository mockUserRepository = mock(UserRepository.class);
-    ProductRepository mockProductRepository = mock(ProductRepository.class);
-    OrderRepository mockOrderRepository = mock(OrderRepository.class);
+  ProductRepository mockProductRepository = mock(ProductRepository.class);
+  OrderRepository mockOrderRepository = mock(OrderRepository.class);
+  OrderStatusHistoryRepository mockOrderStatusHistoryRepo = mock(OrderStatusHistoryRepository.class);
 
-    User mockUser = new User(1L, "John Doe", "john@example.com", "password123");
-    when(mockUserRepository.findById(1L)).thenReturn(Optional.of(mockUser));
-    Product mockProduct =
-        new Product(1L, "Laptop", "High-end gaming laptop", 1500.00, 2); // Only 2 in stock
-    when(mockProductRepository.findById(1L)).thenReturn(Optional.of(mockProduct));
+  User mockUser = new User(1L, "John Doe", "john@example.com", "password123");
+  when(mockUserRepository.findById(1L)).thenReturn(Optional.of(mockUser));
+  Product mockProduct =
+      new Product(1L, "Laptop", "High-end gaming laptop", 1500.00, 2); // Only 2 in stock
+  when(mockProductRepository.findById(1L)).thenReturn(Optional.of(mockProduct));
 
-    OrderController orderCon =
-        new OrderController(mockOrderRepository, mockUserRepository, mockProductRepository);
+  OrderController orderCon =
+      new OrderController(mockOrderRepository, mockUserRepository, mockProductRepository, mockOrderStatusHistoryRepo);
 
     Exception exception =
         assertThrows(InsufficientStockException.class, () -> orderCon.placeOrder(1L, 1L, 5));
@@ -210,7 +216,7 @@ class MonolithicAppTest {
     assertEquals("Smartphone", savedProduct.getName());
     assertEquals("High-end smartphone", savedProduct.getDescription());
     assertEquals(1000.00, savedProduct.getPrice());
-    assertEquals(20, savedProduct.getStock());
+    assertEquals(20, savedProduct.getStockQuantity());
   }
 
   @Test
@@ -248,7 +254,8 @@ class MonolithicAppTest {
                 new User(1L, "John Doe", "john@example.com", "password123"),
                 new Product(1L, "Laptop", "Gaming Laptop", 1200.50, 10),
                 5,
-                6002.50));
+                6002.50,
+                OrderStatus.PENDING));
 
     ecommerceApp.run();
 

@@ -26,6 +26,19 @@ package com.iluwatar.monolithic.repository;
 
 import com.iluwatar.monolithic.model.Product;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Modifying;
+import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.query.Param;
 
 /** This interface allows JpaRepository to generate queries for the required tables. */
-public interface ProductRepository extends JpaRepository<Product, Long> {}
+public interface ProductRepository extends JpaRepository<Product, Long> {
+  /**
+   * Update the stock quantity for a product.
+   * @param productId the product id
+   * @param quantityChange the quantity change (positive for adding, negative for reducing)
+   * @return the number of affected rows
+   */
+  @Modifying
+  @Query("UPDATE Product p SET p.stockQuantity = p.stockQuantity + :quantityChange WHERE p.id = :productId AND p.stockQuantity + :quantityChange >= 0")
+  int updateStock(@Param("productId") Long productId, @Param("quantityChange") Integer quantityChange);
+}

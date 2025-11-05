@@ -25,18 +25,21 @@
 package com.iluwatar.monolithic.repository;
 
 import com.iluwatar.monolithic.model.Order;
-import com.iluwatar.monolithic.model.OrderStatus;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.Pageable;
+import com.iluwatar.monolithic.model.OrderStatusHistory;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.domain.Sort;
 
-/** This interface allows JpaRepository to generate queries for the required tables. */
-public interface OrderRepository extends JpaRepository<Order, Long> {
+import java.util.List;
+
+/**
+ * Repository for OrderStatusHistory entity.
+ */
+public interface OrderStatusHistoryRepository extends JpaRepository<OrderStatusHistory, Long> {
   /**
-   * Find orders by status.
-   * @param status the order status
-   * @param pageable the pageable information
-   * @return a page of orders with the given status
+   * Find all status history records for a given order, sorted by changedAt in descending order.
+   * @param order the order
+   * @param sort the sort criteria
+   * @return list of order status history records
    */
-  Page<Order> findByOrderStatus(OrderStatus status, Pageable pageable);
+  List<OrderStatusHistory> findByOrder(Order order, Sort sort);
 }
