@@ -8,4 +8,5 @@
   <suppress checks="LineLength" files="." />
   <suppress checks="EmptyLineSeparator" files="." />
   <suppress checks="RequireEmptyLineBeforeBlockTagGroup" files=".*\.java"/>
+  <suppress checks="[a-zA-Z0-9]*" files="[\\/]markdoc[\\/]" />
 </suppressions>

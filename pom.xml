@@ -439,6 +439,7 @@
                 <exclude>src/test/resources/**</exclude>
                 <exclude>src/main/resources/**</exclude>
                 <exclude>checkstyle-suppressions.xml</exclude>
+                <exclude>markdoc/**</exclude>
               </excludes>
             </licenseSet>
           </licenseSets>
