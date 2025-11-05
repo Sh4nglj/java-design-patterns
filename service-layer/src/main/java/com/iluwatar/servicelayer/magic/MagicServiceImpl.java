@@ -32,8 +32,11 @@ import com.iluwatar.servicelayer.wizard.Wizard;
 import com.iluwatar.servicelayer.wizard.WizardDao;
 import java.util.ArrayList;
 import java.util.List;
+import org.springframework.transaction.annotation.Propagation;
+import org.springframework.transaction.annotation.Transactional;
 
 /** Service implementation. */
+@Transactional(propagation = Propagation.REQUIRED, timeout = 30)
 public class MagicServiceImpl implements MagicService {
 
   private final WizardDao wizardDao;

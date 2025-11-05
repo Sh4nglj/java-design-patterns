@@ -48,7 +48,7 @@ public final class HibernateUtil {
   public static synchronized SessionFactory getSessionFactory() {
     if (sessionFactory == null) {
       try {
-        sessionFactory =
+        sessionFactory = 
             new Configuration()
                 .addAnnotatedClass(Wizard.class)
                 .addAnnotatedClass(Spellbook.class)
@@ -58,6 +58,7 @@ public final class HibernateUtil {
                 .setProperty("hibernate.current_session_context_class", "thread")
                 .setProperty("hibernate.show_sql", "false")
                 .setProperty("hibernate.hbm2ddl.auto", "create-drop")
+                .setProperty("hibernate.transaction.timeout", "30")
                 .buildSessionFactory();
       } catch (Throwable ex) {
         LOGGER.error("Initial SessionFactory creation failed.", ex);
