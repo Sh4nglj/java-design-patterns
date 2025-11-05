@@ -22,21 +22,48 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  * THE SOFTWARE.
  */
-package com.iluwatar.monolithic.repository;
+package com.iluwatar.monolithic.model;
 
-import com.iluwatar.monolithic.model.Order;
-import com.iluwatar.monolithic.model.OrderStatus;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.Pageable;
-import org.springframework.data.jpa.repository.JpaRepository;
+import jakarta.persistence.Entity;
+import jakarta.persistence.EnumType;
+import jakarta.persistence.Enumerated;
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.GenerationType;
+import jakarta.persistence.Id;
+import jakarta.persistence.ManyToOne;
+import jakarta.persistence.Temporal;
+import jakarta.persistence.TemporalType;
+import lombok.AllArgsConstructor;
+import lombok.Data;
+import lombok.NoArgsConstructor;
 
-/** This interface allows JpaRepository to generate queries for the required tables. */
-public interface OrderRepository extends JpaRepository<Order, Long> {
-  /**
-   * Find orders by status.
-   * @param status the order status
-   * @param pageable the pageable information
-   * @return a page of orders with the given status
-   */
-  Page<Order> findByOrderStatus(OrderStatus status, Pageable pageable);
+import java.util.Date;
+
+/**
+ * Order status history entity to record status changes.
+ */
+@Entity
+@Data
+@NoArgsConstructor
+@AllArgsConstructor
+public class OrderStatusHistory {
+  @Id
+  @GeneratedValue(strategy = GenerationType.IDENTITY)
+  private Long id;
+
+  @ManyToOne
+  private Order order;
+
+  @Enumerated(EnumType.STRING)
+  private OrderStatus fromStatus;
+
+  @Enumerated(EnumType.STRING)
+  private OrderStatus toStatus;
+
+  private String changedBy;
+
+  private String changeReason;
+
+  @Temporal(TemporalType.TIMESTAMP)
+  private Date changedAt = new Date();
 }

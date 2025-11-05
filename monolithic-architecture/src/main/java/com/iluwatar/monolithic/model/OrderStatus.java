@@ -22,21 +22,16 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  * THE SOFTWARE.
  */
-package com.iluwatar.monolithic.repository;
+package com.iluwatar.monolithic.model;
 
-import com.iluwatar.monolithic.model.Order;
-import com.iluwatar.monolithic.model.OrderStatus;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.Pageable;
-import org.springframework.data.jpa.repository.JpaRepository;
-
-/** This interface allows JpaRepository to generate queries for the required tables. */
-public interface OrderRepository extends JpaRepository<Order, Long> {
-  /**
-   * Find orders by status.
-   * @param status the order status
-   * @param pageable the pageable information
-   * @return a page of orders with the given status
-   */
-  Page<Order> findByOrderStatus(OrderStatus status, Pageable pageable);
+/**
+ * Order status enum representing the different states an order can be in.
+ */
+public enum OrderStatus {
+  PENDING,   // 待处理
+  PAID,      // 已支付
+  SHIPPED,   // 已发货
+  DELIVERED, // 已送达
+  CANCELLED, // 已取消
+  REFUNDED   // 已退款
 }

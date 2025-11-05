@@ -22,21 +22,20 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  * THE SOFTWARE.
  */
-package com.iluwatar.monolithic.repository;
+package com.iluwatar.monolithic.exceptions;
 
-import com.iluwatar.monolithic.model.Order;
-import com.iluwatar.monolithic.model.OrderStatus;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.Pageable;
-import org.springframework.data.jpa.repository.JpaRepository;
+import java.io.Serial;
 
-/** This interface allows JpaRepository to generate queries for the required tables. */
-public interface OrderRepository extends JpaRepository<Order, Long> {
+/**
+ * Custom exception class for illegal order status transitions.
+ */
+public class IllegalStateTransitionException extends RuntimeException {
+  @Serial private static final long serialVersionUID = -856432159874563210L;
+
   /**
-   * Find orders by status.
-   * @param status the order status
-   * @param pageable the pageable information
-   * @return a page of orders with the given status
+   * Exception Constructor that is readable through code and provides the message inputted into it.
    */
-  Page<Order> findByOrderStatus(OrderStatus status, Pageable pageable);
+  public IllegalStateTransitionException(String message) {
+    super(message);
+  }
 }
