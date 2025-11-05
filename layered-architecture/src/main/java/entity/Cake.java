@@ -25,6 +25,7 @@
 
 package entity;
 
+import com.fasterxml.jackson.annotation.JsonManagedReference;
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.Entity;
 import jakarta.persistence.FetchType;
@@ -46,9 +47,11 @@ public class Cake {
   @Id @GeneratedValue private Long id;
 
   @OneToOne(cascade = CascadeType.REMOVE)
+  @JsonManagedReference
   private CakeTopping topping;
 
   @OneToMany(cascade = CascadeType.REMOVE, fetch = FetchType.EAGER)
+  @JsonManagedReference
   private Set<CakeLayer> layers;
 
   public Cake() {

@@ -25,6 +25,7 @@
 
 package entity;
 
+import com.fasterxml.jackson.annotation.JsonBackReference;
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
@@ -54,6 +55,7 @@ public class CakeLayer {
   private int calories;
 
   @ManyToOne(cascade = CascadeType.ALL)
+  @JsonBackReference
   private Cake cake;
 
   public CakeLayer(String name, int calories) {
