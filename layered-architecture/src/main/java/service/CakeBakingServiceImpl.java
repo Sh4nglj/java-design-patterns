@@ -41,6 +41,7 @@ import java.util.List;
 import java.util.Set;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Isolation;
 import org.springframework.transaction.annotation.Transactional;
 
 /** Implementation of CakeBakingService. */
@@ -68,15 +69,22 @@ public class CakeBakingServiceImpl implements CakeBakingService {
   }
 
   @Override
+  @Transactional(isolation = Isolation.SERIALIZABLE)
   public void bakeNewCake(CakeInfo cakeInfo) throws CakeBakingException {
+    if (cakeInfo == null) {
+      throw new CakeBakingException("CakeInfo cannot be null");
+    }
+    if (cakeInfo.cakeToppingInfo == null) {
+      throw new CakeBakingException("CakeToppingInfo cannot be null");
+    }
+    if (cakeInfo.cakeLayerInfos == null || cakeInfo.cakeLayerInfos.isEmpty()) {
+      throw new CakeBakingException("At least one CakeLayerInfo is required");
+    }
+
     var allToppings = getAvailableToppingEntities();
-    var matchingToppings =
-        allToppings.stream()
-            .filter(t -> t.getName().equals(cakeInfo.cakeToppingInfo.name))
-            .toList();
+    var matchingToppings = allToppings.stream().filter(t -> t.getName().equals(cakeInfo.cakeToppingInfo.name)).toList();
     if (matchingToppings.isEmpty()) {
-      throw new CakeBakingException(
-          String.format("Topping %s is not available", cakeInfo.cakeToppingInfo.name));
+      throw new CakeBakingException(String.format("Topping %s is not available", cakeInfo.cakeToppingInfo.name));
     }
     var allLayers = getAvailableLayerEntities();
     Set<CakeLayer> foundLayers = new HashSet<>();
@@ -97,8 +105,7 @@ public class CakeBakingServiceImpl implements CakeBakingService {
       cakeDao.save(cake);
       topping.get().setCake(cake);
       cakeToppingDao.save(topping.get());
-      Set<CakeLayer> foundLayersToUpdate =
-          new HashSet<>(foundLayers); // copy set to avoid a ConcurrentModificationException
+      Set<CakeLayer> foundLayersToUpdate = new HashSet<>(foundLayers); // copy set to avoid a ConcurrentModificationException
 
       for (var layer : foundLayersToUpdate) {
         layer.setCake(cake);
@@ -106,8 +113,7 @@ public class CakeBakingServiceImpl implements CakeBakingService {
       }
 
     } else {
-      throw new CakeBakingException(
-          String.format("Topping %s is not available", cakeInfo.cakeToppingInfo.name));
+      throw new CakeBakingException(String.format("Topping %s is not available", cakeInfo.cakeToppingInfo.name));
     }
   }
 
@@ -182,17 +188,26 @@ public class CakeBakingServiceImpl implements CakeBakingService {
   public List<CakeInfo> getAllCakes() {
     List<CakeInfo> result = new ArrayList<>();
     for (Cake cake : cakeDao.findAll()) {
-      var cakeToppingInfo =
-          new CakeToppingInfo(
-              cake.getTopping().getId(),
-              cake.getTopping().getName(),
-              cake.getTopping().getCalories());
-      List<CakeLayerInfo> cakeLayerInfos = new ArrayList<>();
-      for (var layer : cake.getLayers()) {
-        cakeLayerInfos.add(new CakeLayerInfo(layer.getId(), layer.getName(), layer.getCalories()));
+      if (cake != null) {
+        CakeTopping topping = cake.getTopping();
+        if (topping != null) {
+          var cakeToppingInfo = new CakeToppingInfo(
+              topping.getId(),
+              topping.getName(),
+              topping.getCalories());
+          List<CakeLayerInfo> cakeLayerInfos = new ArrayList<>();
+          Set<CakeLayer> layers = cake.getLayers();
+          if (layers != null) {
+            for (var layer : layers) {
+              if (layer != null) {
+                cakeLayerInfos.add(new CakeLayerInfo(layer.getId(), layer.getName(), layer.getCalories()));
+              }
+            }
+          }
+          var cakeInfo = new CakeInfo(cake.getId(), cakeToppingInfo, cakeLayerInfos);
+          result.add(cakeInfo);
+        }
       }
-      var cakeInfo = new CakeInfo(cake.getId(), cakeToppingInfo, cakeLayerInfos);
-      result.add(cakeInfo);
     }
     return result;
   }
